@@ -49,7 +49,7 @@ MongoProtocolParser.prototype._getReply = function(header, cb) {
     reply.cursorID = (buffer.readUInt32LE(4) * (1 << 16) * (1 << 16)) * buffer.readUInt32LE(8);
     reply.startingFrom = buffer.readUInt32LE(12);
     reply.numberReturned = buffer.readUInt32LE(16);
-    reply.docs = bson.deserialize(buffer.slice(20));
+    if (reply.numberReturned) reply.docs = bson.deserialize(buffer.slice(20));
 
     cb(reply);
   });
