@@ -1,0 +1,35 @@
+{
+  "name": "mongodb-protocol",
+  "version": "0.0.0",
+  "description": "The mongodb wire protocol.",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "bson": "~0.2.8",
+    "readable-stream": "~1.0.27-1"
+  },
+  "devDependencies": {
+    "tape": "~2.13.2"
+  },
+  "scripts": {
+    "test": "tape test/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/sorribas/mongodb-protocol"
+  },
+  "keywords": [
+    "mongodb",
+    "mongo",
+    "protocol",
+    "parser"
+  ],
+  "author": "Eduardo Sorribas <eduardo@sorribas.org> (http://sorribas.org/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sorribas/mongodb-protocol/issues"
+  },
+  "homepage": "https://github.com/sorribas/mongodb-protocol"
+}
