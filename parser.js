@@ -22,6 +22,12 @@ var MongoProtocolParser = function() {
           loop();
         });
       }
+      if (header.opCode === 2004) {
+        self._getQuery(header, function(query) {
+          self.emit('query', query);
+          loop();
+        });
+      }
     });
   };
   loop();
@@ -45,6 +51,7 @@ MongoProtocolParser.prototype._getHeader = function(cb) {
 MongoProtocolParser.prototype._getReply = function(header, cb) {
   this._get(header.messageLength - 16, function(buffer) {
     var reply = {};
+    reply.header = header;
     reply.responseFlags = buffer.readUInt32LE(0);
     reply.cursorID = (buffer.readUInt32LE(4) * (1 << 16) * (1 << 16)) * buffer.readUInt32LE(8);
     reply.startingFrom = buffer.readUInt32LE(12);
@@ -52,6 +59,29 @@ MongoProtocolParser.prototype._getReply = function(header, cb) {
     if (reply.numberReturned) reply.docs = bson.deserialize(buffer.slice(20));
 
     cb(reply);
+  });
+};
+
+MongoProtocolParser.prototype._getQuery = function(header, cb) {
+  this._get(header.messageLength - 16, function(buffer) {
+    var query = {};
+    query.header = header;
+    query.flags = buffer.readUInt32LE(0);
+    query.collectionName = '';
+    for (var i = 4; buffer[i] !== 0; i++) {
+      query.collectionName += String.fromCharCode(buffer[i]);
+    }
+    var colNameLength = query.collectionName.length + 1;
+
+    query.numberToSkip = buffer.readUInt32LE(4 + colNameLength);
+    query.numberToReturn = buffer.readUInt32LE(8 + colNameLength);
+
+    var queryBuf = [];
+    for (var i = (12 + colNameLength); buffer[i] !== 0; i++) {
+      queryBuf.push(Buffer(buffer[i]));
+    }
+    query.query = bson.deserialize(buffer.slice(12 + colNameLength));
+    cb(query);
   });
 };
 
